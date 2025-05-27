@@ -1,10 +1,9 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import QDir, QModelIndex
-from PyQt5.QtWidgets import QFileDialog, QFileSystemModel, QMainWindow, QFileDialog, QMessageBox, QDialog, QApplication
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import  QDialog
 
 from ui_file import Ui_Dialog
 import sys
+import setup_body,setup
 
 class MainWindow(QDialog):
     def __init__(self):
@@ -46,12 +45,13 @@ class MainWindow(QDialog):
                 self.ui.spinBox_59.value(), self.ui.spinBox_51.value())
         
         
-        print(real)
-        print(im)
+        #print(real)
+        #print(im)
 
-        
+        deploy_human = setup_body.assemble_body(setup.create_factors(real=real,im = im)[0])
         #print(result)  
         #return result  
+        self.ui.graphicsView_2.scene().addPixmap(deploy_human)
 
 
   
