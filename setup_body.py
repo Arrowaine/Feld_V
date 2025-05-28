@@ -1,6 +1,6 @@
 from PIL import Image,ImageDraw
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QBuffer, QIODevice
+from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtCore import QBuffer, QIODevice,Qt
 import numpy as np
 
 
@@ -16,7 +16,7 @@ class Body:
         self.name = types[type]
         if type < 5:
 
-            self.img = Image.open(f'{self.name}.png').convert("RGBA")       # Feld_v/ или без него
+            self.img = Image.open(f'Feld_v/{self.name}.png').convert("RGBA")       #  или без него
 
         self.x = self.img.width
         self.y = self.img.height
@@ -91,6 +91,7 @@ class Body_part(Body):
                     else:
                         color = (0, int(255 * (1 - abs(distortion))), int(255 * abs(distortion)))
                         joint.circle((x,y), 200* (1 - abs(distortion)), fill = color, outline = "#000000", width= 5)
+
 def pil_to_pixmap(pil_image):
 
     buffer = QBuffer()
@@ -100,6 +101,18 @@ def pil_to_pixmap(pil_image):
     pixmap = QPixmap()
     pixmap.loadFromData(buffer.data(), "PNG")
     return pixmap
+
+def pil_to_pixmap2(pil_image):
+
+    qimage = QImage(
+            pil_image.tobytes(),
+            pil_image.width,
+            pil_image.height,
+            pil_image.width * 4,  # Bytes per line (4 канала: R, G, B, A)
+            QImage.Format_RGBA8888
+    )
+    return QPixmap.fromImage(qimage)
+
 
 def assemble_body(factors):
     # Инициализируем части тела
