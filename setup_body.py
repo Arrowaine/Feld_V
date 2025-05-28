@@ -3,7 +3,6 @@ from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import QBuffer, QIODevice,Qt
 import numpy as np
 
-
 types = {0: "Head", 1: "Torso", 2: "Legs", 3: "Right_arm", 4: "Left_arm"}
 joints_points = {"Left_arm" : (0.342, 0.412),
                  "Right_arm": (0.65, 0.412),
@@ -15,16 +14,13 @@ class Body:
 
         self.name = types[type]
         if type < 5:
-
-            self.img = Image.open(f'Feld_v/{self.name}.png').convert("RGBA")       #  или без него
-
+            self.img = Image.open(f'assets\\{self.name}.png').convert("RGBA")       #  или без него
         self.x = self.img.width
         self.y = self.img.height
         self.distortion = distortion
 
     def change_color(self):
         self.data = np.array(self.img)
-
         if isinstance(self.distortion, int) or isinstance(self.distortion, float):
             if self.distortion > 0:
                 new_color = (int(255 * self.distortion), int(255 * (1 - self.distortion)), 0)
@@ -48,20 +44,15 @@ class Body_part(Body):
     def resize(self):
         if isinstance(self.distortion, tuple):
             self.img = self.img.resize( (int(self.x * (1 + self.distortion[0]/2)), 
-                                        int(self.y * (1 + self.distortion[1]/2)))
-                                        )       
+                                        int(self.y * (1 + self.distortion[1]/2))))       
         else:
             self.img.resize( 
                 (int(self.x * (1 + self.distortion/2)),  
-                 int(self.y * (1 + self.distortion/2)))
-                 )
-               
+                 int(self.y * (1 + self.distortion/2))))
 
         self.x, self.y = self.img.size
         self.img.convert('RGBA')  
-        #print(self.img.mode)
-    
-        #self.img.save(f'test_{self.name}.png')
+
     def close_img(self):
         self.img.close()
 
@@ -113,7 +104,6 @@ def pil_to_pixmap2(pil_image):
     )
     return QPixmap.fromImage(qimage)
 
-
 def assemble_body(factors):
     # Инициализируем части тела
     factors = [factor/100 for factor in factors]
@@ -124,8 +114,7 @@ def assemble_body(factors):
     legs = Body_part(2, factors[2])
     
     # подгоняем под факторы 
-    for item in [torso, head, left_arm, right_arm, legs]:
-        
+    for item in [torso, head, left_arm, right_arm, legs]:  
         item.change_color()
         item.resize()
     # определяем размеры итоговой картинки
@@ -146,14 +135,8 @@ def assemble_body(factors):
     human.paste(right_arm.img, (0, head.y), right_arm.img)
     human.paste(legs.img, ((width - legs.x)//2, head.y + torso.y), legs.img)
 
-
     #Закрываем картинки 
     for item in [torso, head, left_arm, right_arm, legs]:
         item.close_img()
 
-    
-    #human.save('human_final.png')
-
     return pil_to_pixmap(human)
-
-#assemble_body((22.3,19.1,25.4,25.1,65.8,62.0,15.9))

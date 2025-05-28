@@ -8,8 +8,7 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
     
     Возвращает:
     - S-Score (целое число от 1 до 10)
-    """
-    
+    """ 
     # Таблица преобразования (границы диапазонов для каждого параметра и S-Score)
     s_score_table = {
         0: [
@@ -22,10 +21,8 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
                 (15.3, 25.85),             # S-Score 7
                 (25.85, 36.5),            # S-Score 8
                 (36.5, 57.1),              # S-Score 9
-                (57.1, float('inf'))       # S-Score 10
-            ],
-        1: [
-            (-float('inf'), -26.9),
+                (57.1, float('inf'))],       # S-Score 10
+        1: [(-float('inf'), -26.9),
             (-26.9, -20.1),
             (-20.1, -12.51),
             (-12.51, -3.1),
@@ -34,10 +31,8 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
             (17.04, 30.3),
             (30.3, 44),
             (44, 59.1),
-            (59.1, float('inf'))
-        ],
-        2: [
-            (-float('inf'), -31.7),
+            (59.1, float('inf'))],
+        2: [(-float('inf'), -31.7),
             (-31.7, -25.1),
             (-25.1, -17.8),
             (-17.8, -8.11),
@@ -46,10 +41,8 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
             (13, 28),
             (28, 44.8),
             (44.8, 60.1),
-            (60.1, float('inf'))
-        ],
-        3: [
-            (-float('inf'), -28.5),
+            (60.1, float('inf'))],
+        3: [(-float('inf'), -28.5),
             (-28.5, -22.21),
             (-22.21, -11.51),
             (-11.51, -2.21),
@@ -58,10 +51,8 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
             (21.5, 30.7),
             (30.7, 44.9),
             (44.9, 63.1),
-            (63.1, float('inf'))
-        ],
-        4: [
-            (-float('inf'), -28.1),
+            (63.1, float('inf'))],
+        4: [(-float('inf'), -28.1),
             (-28.1, -17),
             (-17, -6.3),
             (-6.3, 4.33),
@@ -70,10 +61,8 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
             (38.4, 54.9),
             (54.9, 74.5),
             (74.5, 103.1),
-            (103.1, float('inf'))
-        ],
-        5: [
-            (-float('inf'), -9.21),
+            (103.1, float('inf'))],
+        5: [(-float('inf'), -9.21),
             (-9.21, -0.36),
             (-0.36, 14.29),
             (14.29, 24.9),
@@ -82,10 +71,8 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
             (55.5, 73),
             (73, 97),
             (97, 121),
-            (121, float('inf'))
-        ],
-        6: [
-            (-float('inf'), -23.71),
+            (121, float('inf'))],
+        6: [(-float('inf'), -23.71),
             (-23.71, -15.31),
             (-15.31, 2.5),
             (2.5, 11.5),
@@ -94,23 +81,13 @@ def calculate_s_score(parameter: str, distortion_percent: float) -> int:
             (45, 69),
             (69, 92),
             (92, 119.1),
-            (119.1, float('inf'))
-        ]
-    }
-    
-    # Проверяем, что параметр существует в таблице
+            (119.1, float('inf'))]}
     if parameter not in s_score_table:
-        raise ValueError(f"Неизвестный параметр: {parameter}. Допустимые параметры: {list(s_score_table.keys())}")
-    
-    # Получаем диапазоны для выбранного параметра
+        raise ValueError(f"Неизвестный параметр: {parameter}. Допустимые параметры: {list(s_score_table.keys())}")   
     ranges = s_score_table[parameter]
-    
-    # Проверяем, в какой диапазон попадает distortion_percent
     for score, (lower, upper) in enumerate(ranges, start=1):
         if lower <= distortion_percent < upper:
             return score
-    
-    # Если не попали ни в один диапазон (маловероятно, но на всякий случай)
     return 10 if distortion_percent >= ranges[-1][0] else 1
 
     
@@ -127,18 +104,15 @@ def create_factors(real,im):
             (delta[18]+delta[19])/2,
             (delta[20]+delta[21])/2,
             (delta[22]+delta[23])/2,
-            (delta[24]+delta[25])/2 ]
-    
+            (delta[24]+delta[25])/2 ]   
     factors = [ (avg[4]+avg[6]+avg[7]+avg[13]+avg[15]+avg[16])/6,
             (avg[4]+avg[6]+avg[7])/3,
             (avg[13]+avg[15]+avg[16])/3,
             (avg[10]+avg[11]+avg[12])/3,
             (avg[3]+avg[5]+avg[14])/3,
             (avg[0]+avg[1]+avg[2])/3,
-            (avg[8]+avg[9])/2        ]
-    
+            (avg[8]+avg[9])/2        ]   
     s_score = [calculate_s_score(factors.index(factor),factor) for factor in factors]
-
     return factors, s_score
 
 def text_s_score(s_score):

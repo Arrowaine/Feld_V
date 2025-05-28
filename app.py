@@ -8,17 +8,11 @@ import sys
 import setup_body,setup
 
 def display_image_in_graphicsview(pixmap, graphics_view):
-    # Создаем сцену, если её ещё нет
+
     scene = QGraphicsScene()
-    
-    # Добавляем QPixmap в сцену
     pixmap_item = QGraphicsPixmapItem(pixmap)
     scene.addItem(pixmap_item)
-    
-    # Устанавливаем сцену в QGraphicsView
     graphics_view.setScene(scene)
-    
-    # Масштабируем под размер виджета
     graphics_view.fitInView(pixmap_item, Qt.KeepAspectRatio)
 
 
@@ -60,14 +54,13 @@ class MainWindow(QDialog):
                 self.ui.spinBox_65.value(), self.ui.spinBox_63.value(),
                 self.ui.spinBox_57.value(), self.ui.spinBox_64.value(),
                 self.ui.spinBox_59.value(), self.ui.spinBox_51.value())
-        
-        
+               
         #Генерация персонажа
         factors = setup.create_factors(real=real,im = im)
         pixmap = setup_body.pil_to_pixmap(setup_body.assemble_body(factors[0]))
         display_image_in_graphicsview(pixmap, self.ui.graphicsView_2)
-        # Загрузка реального персонажа убрать Feld_V\ 
-        pixmap2 = QPixmap("Feld_V\\real_human.jpg")
+        
+        pixmap2 = QPixmap("assets\\real_human.jpg")
         scene = QGraphicsScene()
 
         pixmap_item = QGraphicsPixmapItem(pixmap2)
@@ -76,8 +69,7 @@ class MainWindow(QDialog):
         self.ui.graphicsView.setScene(scene)
         self.ui.graphicsView.fitInView(pixmap_item, Qt.KeepAspectRatio)
 
-        # Вывод факторного анализа
-        
+        # Вывод факторного анализа   
         self.ui.s_0.setText(f'{factors[1][0]}')
         self.ui.s_1.setText(f'{factors[1][1]}')
         self.ui.s_2.setText(f'{factors[1][2]}')
@@ -102,7 +94,6 @@ class MainWindow(QDialog):
         self.ui.im_5.setText(f'{factors[0][5]:.0f}%')
         self.ui.im_6.setText(f'{factors[0][6]:.0f}%')        
         
-
     def save_as_image(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Сохранить", "", "PNG (*.png)")
         if file_path:
@@ -111,6 +102,5 @@ class MainWindow(QDialog):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
-    window.show()
-   
+    window.show() 
     sys.exit(app.exec_())
