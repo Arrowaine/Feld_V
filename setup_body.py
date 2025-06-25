@@ -9,6 +9,15 @@ joints_points = {"Left_arm" : (0.342, 0.412),
                  "Head": [[0.228, 0.849], [0.771, 0.849]],
                  'Legs': [[0.274, 0.478], [0.713, 0.478]]}
 
+def limit_and_scale(value):
+    clamped = max(-1.0, min(1.0, value))
+    if clamped > 0.5:
+        return 1
+    elif clamped < -0.5:
+        return -1
+    else:
+        return clamped * 2
+
 class Body:
     def __init__(self, type, distortion ):
 
@@ -17,7 +26,10 @@ class Body:
             self.img = Image.open(f'assets\\{self.name}.png').convert("RGBA")       #  или без него
         self.x = self.img.width
         self.y = self.img.height
-        self.distortion = distortion
+        if isinstance(distortion,tuple):
+            self.distortion = (limit_and_scale(distortion[0]),limit_and_scale(distortion[1]))    
+        else:
+            self.distortion = limit_and_scale(distortion)
 
     def change_color(self):
         self.data = np.array(self.img)
