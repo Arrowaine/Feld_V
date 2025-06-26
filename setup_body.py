@@ -9,16 +9,18 @@ joints_points = {"Left_arm" : (0.342, 0.412),
                  "Head": [[0.228, 0.849], [0.771, 0.849]],
                  'Legs': [[0.274, 0.478], [0.713, 0.478]]}
 
-def limit_and_scale(value):
-    clamped = max(-1.0, min(1.0, value))
+def redistortion(distortion):
+    '''Перерасчет искажения для подгонки изображения'''
+    clamped = max(-1.0, min(1.0, distortion))
     if clamped > 0.5:
-        return 1
+        return 0.99
     elif clamped < -0.5:
-        return -1
+        return -0.99
     else:
         return clamped * 2
 
 class Body:
+    '''Создание тела'''
     def __init__(self, type, distortion ):
 
         self.name = types[type]
@@ -27,9 +29,9 @@ class Body:
         self.x = self.img.width
         self.y = self.img.height
         if isinstance(distortion,tuple):
-            self.distortion = (limit_and_scale(distortion[0]),limit_and_scale(distortion[1]))    
+            self.distortion = (redistortion(distortion[0]),redistortion(distortion[1]))    
         else:
-            self.distortion = limit_and_scale(distortion)
+            self.distortion = redistortion(distortion)
 
     def change_color(self):
         self.data = np.array(self.img)
@@ -50,17 +52,19 @@ class Body:
         
 
 class Body_part(Body):
+    '''Создание класса части тела с типом и искажением'''
     def __init__(self, type: int, distortion):
         super().__init__(type, distortion)
         
     def resize(self):
+        '''Изменяет размер части тела в соответсвии с искажением'''
         if isinstance(self.distortion, tuple):
-            self.img = self.img.resize( (int(self.x * (1 + self.distortion[0]/2)), 
-                                        int(self.y * (1 + self.distortion[1]/2))))       
+            self.img = self.img.resize( (int(self.x * (1 + self.distortion[0])), 
+                                        int(self.y * (1 + self.distortion[1]))))       
         else:
             self.img.resize( 
-                (int(self.x * (1 + self.distortion/2)),  
-                 int(self.y * (1 + self.distortion/2))))
+                (int(self.x * (1 + self.distortion)),  
+                 int(self.y * (1 + self.distortion))))
 
         self.x, self.y = self.img.size
         self.img.convert('RGBA')  
@@ -69,7 +73,7 @@ class Body_part(Body):
         self.img.close()
 
     def create_joint(self,  distortion):
-        
+        '''Создание подкрепленного сустава'''
         if self.name in joints_points:
             joint = ImageDraw.Draw(self.img)
             joint_pos = joints_points.get(self.name)
@@ -96,7 +100,7 @@ class Body_part(Body):
                         joint.circle((x,y), 200* (1 - abs(distortion)), fill = color, outline = "#000000", width= 5)
 
 def pil_to_pixmap(pil_image):
-
+    '''Первый способ перевода картинки из pil to pixmap'''
     buffer = QBuffer()
     buffer.open(QIODevice.ReadWrite)
     pil_image.save(buffer, "PNG")
@@ -106,7 +110,7 @@ def pil_to_pixmap(pil_image):
     return pixmap
 
 def pil_to_pixmap2(pil_image):
-
+    '''второй способ перевода картинки из pil to pixmap'''
     qimage = QImage(
             pil_image.tobytes(),
             pil_image.width,
@@ -145,7 +149,7 @@ def assemble_body(factors):
     human.paste(torso.img, (right_arm.x, head.y), torso.img)
     human.paste(left_arm.img, (right_arm.x + torso.x, head.y), left_arm.img)
     human.paste(right_arm.img, (0, head.y), right_arm.img)
-    human.paste(legs.img, ((width - legs.x)//2, head.y + torso.y), legs.img)
+    human.paste(legs.img, ((torso.x - legs.x)//2+right_arm.x, head.y + torso.y), legs.img)
 
     #Закрываем картинки 
     for item in [torso, head, left_arm, right_arm, legs]:
